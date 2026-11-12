@@ -1,0 +1,70 @@
+# 宿主半区：把包的主入口作为普通 Cordis 插件加载。
+# 工作目录设置可以在侧栏「插件」页的「工作目录」卡片里修改，改完立即生效。
+# 这里不写任何默认路径，配置全部由插件 schema 提供（默认留空，自动探测）。
+#
+# 同一条补丁里再声明一个「ICC 投研顾问」对话模式（agent preset），
+# 它和「标准模式」一样出现在新建会话的模式选择里，但只负责投研咨询。
+- insert:
+    - id: dsh-icc-tools
+      name: dsh-icc-tools
+
+- insert:
+    - id: preset-icc-advisor
+      name: '@deepseek-ai/dsh-agent-preset'
+      config:
+        id: icc-advisor
+        name: ICC 投研顾问
+        description: 围绕虚拟仓、自选股与财经新闻提供投研咨询，可直接调用本地新闻情感打分和多智能体辩论工具。
+        order: 20
+        plugins:
+          - id: persona
+            name: '@deepseek-ai/dsh-persona'
+            config:
+              prefix: |
+                你是 ICC 投研顾问，服务对象是使用本地虚拟盘的 A 股投资者。
+                你的职责是解释市场信息、评估持仓风险、给出可执行的操作建议，而不是替用户下单。
+                需要证据时优先使用 news_sentiment 给新闻打分、用 stock_debate 跑多智能体辩论，
+                并把五档评级、建议仓位、风控分歧和关键假设讲清楚。
+                辩论结果会带 run_id；后续要回看完整留痕（分析师原文、多空多轮、三方风控发言），
+                用 debate_record 按 run_id 或 symbol 取回，不要凭记忆复述。
+                涉及金额、仓位与收益时说明口径与假设；数据不足时直接说明缺什么，不要编造行情。
+                安装：如果工具返回 code=NEED_INSTALL，或提示工作空间里没有 ICC 代码，
+                说明这是首次使用，需要把代码下载到该工作空间。
+                先用一两句话向用户确认：下载地址（repoUrl）和目标目录，并说明这会执行 git clone；
+                得到明确同意后调用 icc_install，安装成功再重试刚才的工具，不要跳过确认直接下载。
+          - id: time-context
+            name: '@deepseek-ai/dsh-time-context'
+          - id: agent-instructions
+            name: '@deepseek-ai/dsh-agent-instructions'
+            config:
+              maxBytes: 32768
+          - id: tool-ask-user
+            name: '@deepseek-ai/dsh-tool-ask-user'
+          - id: tool-todo
+            name: '@deepseek-ai/dsh-tool-todo'
+            config:
+              allowParallelInProgress: true
+          - id: tool-web
+            name: '@deepseek-ai/dsh-tool-web'
+            config:
+              fetch: true
+              searchTimeoutMs: 60000
+          - id: compaction
+            name: cordis:group
+            group: true
+            isolate:
+              compaction: true
+              toolResultPruner: true
+            config:
+              - id: compaction-basic
+                name: '@deepseek-ai/dsh-compaction-basic'
+              - id: command-compact
+                name: '@deepseek-ai/dsh-command-compact'
+              - id: tool-result-pruner
+                name: '@deepseek-ai/dsh-compaction-tool-result-pruner'
+                config:
+                  # 辩论记录有十几 KB，阈值放宽，保证后续回合仍能看到完整留痕；
+                  # 真超出时优先保留头部（evidence + 前几轮），尾部留裁决。
+                  thresholdChars: 48000
+                  headChars: 40000
+                  tailChars: 6000
