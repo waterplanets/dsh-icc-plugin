@@ -4,6 +4,11 @@
   "private": true,
   "type": "module",
   "description": "DSH 插件：ICC 投研仪表盘、虚拟仓账户管理、一键 AI 操盘、报告与定时任务，以及本地新闻情感打分和 A 股多 Agent 辩论工具。",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/waterplanets/dsh-icc-plugin.git"
+  },
+  "homepage": "https://github.com/waterplanets/dsh-icc-plugin",
   "main": "lib/index.js",
   "icon": "icon.svg",
   "exports": {

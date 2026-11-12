@@ -2,12 +2,28 @@
 
 DSH 插件：把本地 ICC 投研工作台接进 DeepSeek Harness。提供左侧「ICC 投研」仪表盘、一个投研咨询模式，以及新闻情感、辩论、留痕回看、代码安装四个模型工具。
 
+## 安装
+
+从 GitHub 安装：
+
+```bash
+dsh plugin --profile desktop add https://github.com/waterplanets/dsh-icc-plugin.git
+```
+
+本地开发时也可以直接装目录：
+
+```bash
+dsh plugin --profile desktop add <本目录绝对路径>
+```
+
+装完重启 DSH，在侧栏「插件」→「ICC 投研」的「工作空间」里填一个目录即可。
+
 > 工作空间在**本页底部**的「工作空间」配置区修改，保存后立即生效。
 
 ## 目录结构
 
 ```
-dsh-plugin/
+dsh-icc-plugin/
 ├── package.json          # 插件元数据：main / dsh.client / 资源导出
 ├── cordis.patch.yml      # 宿主组合补丁：加载插件 + 声明「ICC 投研顾问」模式
 ├── icon.svg              # 侧边栏图标（<256 KiB）
@@ -95,7 +111,8 @@ POST /icc-tools/api/schedules/delete
 
 ## 开发
 
-- 安装到 profile：`dsh plugin --profile desktop add <本目录绝对路径>`
+- 从 GitHub 安装：`dsh plugin --profile desktop add https://github.com/waterplanets/dsh-icc-plugin.git`
+- 本地目录安装：`dsh plugin --profile desktop add <本目录绝对路径>`
 - 语法检查：`node --check lib/index.js`、`node --check client/client.js`
 - 冒烟测试：`node test/run.mjs`
 - 改动宿主端或补丁后需要重启 DSH；浏览器端刷新页面即可。
