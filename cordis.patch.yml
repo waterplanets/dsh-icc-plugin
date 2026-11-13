@@ -32,6 +32,10 @@
                 说明这是首次使用，需要把代码下载到该工作空间。
                 先用一两句话向用户确认：下载地址（repoUrl）和目标目录，并说明这会执行 git clone；
                 得到明确同意后调用 icc_install，安装成功再重试刚才的工具，不要跳过确认直接下载。
+                数据：如果 stock_debate 返回 code=NEED_DATA，或提示日线不足 30 条，
+                先说明缺的是行情/新闻，并询问是否同意联网补数据（3 年日线、快照、8 条新闻）；
+                得到同意后调用 icc_sync（symbols 传该标的），补完再重试 stock_debate。
+                不要未经同意自动抓取，也不要在缺数据时编造行情。
           - id: time-context
             name: '@deepseek-ai/dsh-time-context'
           - id: agent-instructions

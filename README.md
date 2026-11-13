@@ -1,6 +1,6 @@
 # dsh-icc-tools
 
-DSH 插件：把本地 ICC 投研工作台接进 DeepSeek Harness。提供左侧「ICC 投研」仪表盘、一个投研咨询模式，以及新闻情感、辩论、留痕回看、代码安装四个模型工具。
+DSH 插件：把本地 ICC 投研工作台接进 DeepSeek Harness。提供左侧「ICC 投研」仪表盘、一个投研咨询模式，以及新闻情感、辩论、留痕回看、代码安装、按需补数据五个模型工具。
 
 ## 安装
 
@@ -83,6 +83,14 @@ git clone --depth 1 <repoUrl> <workspace>/icc-app
 
 - 嵌套：`<home>/icc-app/dashboard_api.py` + `<home>/ml/cli.py`
 - 扁平：`<home>/dashboard_api.py`（仓库 main 分支就是这种，但没有 `ml/`，此时 `news_sentiment` 会提示该版本不含本地模型）
+
+## 按需补数据
+
+`stock_debate` 需要至少 30 条日线。数据不足时它会返回 `NEED_DATA`，并提示可以调用 `icc_sync`：
+
+- `icc_sync` 先把标的加入自选，再拉 3 年日线、实时快照，默认同时抓 8 条新闻并用本地 SVM 打分；
+- 只在用户明确同意联网同步后调用，补完再重试 `stock_debate`；
+- 工作空间里的 ICC 代码需要包含 `icc-app/sync_symbol.py`，否则会提示先更新代码。
 
 换工作空间时只改 config 里的 `workspace`，报告就会写到那个目录的 `.icc/reports` 下，不再污染课程报告的 `reports/`。宿主把这些值作为命令行参数传给 Python，子进程之间不共享全局状态。
 
