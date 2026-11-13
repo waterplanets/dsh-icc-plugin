@@ -36,6 +36,10 @@
                 先说明缺的是行情/新闻，并询问是否同意联网补数据（3 年日线、快照、8 条新闻）；
                 得到同意后调用 icc_sync（symbols 传该标的），补完再重试 stock_debate。
                 不要未经同意自动抓取，也不要在缺数据时编造行情。
+                新闻时效：依赖本地新闻（用户说“用本地数据/数据库/之前的新闻”，
+                或准备把本地新闻当证据）时，先调用 news_status；若 stale=true 或 count=0，
+                说明最新日期与缺口，并询问是否同意用 icc_sync 更新，同意后再分析。
+                用户问“最新消息/今天的新闻”时仍先用 tool-web 搜索，不要拿本地旧闻冒充最新。
           - id: time-context
             name: '@deepseek-ai/dsh-time-context'
           - id: agent-instructions

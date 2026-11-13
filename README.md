@@ -1,6 +1,6 @@
 # dsh-icc-tools
 
-DSH 插件：把本地 ICC 投研工作台接进 DeepSeek Harness。提供左侧「ICC 投研」仪表盘、一个投研咨询模式，以及新闻情感、辩论、留痕回看、代码安装、按需补数据五个模型工具。
+DSH 插件：把本地 ICC 投研工作台接进 DeepSeek Harness。提供左侧「ICC 投研」仪表盘、一个投研咨询模式，以及新闻情感、辩论、留痕回看、代码安装、按需补数据、新闻时效检查六个模型工具。
 
 ## 安装
 
@@ -104,6 +104,7 @@ GET  /icc-tools/api/state
 POST /icc-tools/api/install
 GET  /icc-tools/api/search?q=华微
 POST /icc-tools/api/watch/add
+GET  /icc-tools/api/news/status?symbol=600360.SH
 GET  /icc-tools/api/debate/latest?symbol=
 POST /icc-tools/api/accounts/create
 POST /icc-tools/api/accounts/reset
