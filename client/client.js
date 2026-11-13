@@ -370,12 +370,78 @@ table.icc-table tr:last-child td { border-bottom: 0; }
             }, label))
         ),
 
-        tab === 'overview' ? h(Overview, { data, acc, pf, watchlist }) : null,
+        tab === 'overview' ? h(Overview, { data, acc, pf, watchlist, load, flash }) : null,
         tab === 'accounts' ? h(Accounts, { data, acc, load, flash, setBusy, busy }) : null,
         tab === 'trade' ? h(AutoTrade, { acc, watchlist, load, setBusy, busy }) : null,
         tab === 'debate' ? h(Debate, { watchlist, flash }) : null,
         tab === 'schedules' ? h(Schedules, { schedules, account: acc.id, taskTypes: data?.task_types || [], refresh: () => load(account, true), flash }) : null,
         tab === 'report' ? h(Report, { account: acc.id, flash, paths: data?.paths }) : null
+      );
+    }
+
+    function WatchAdd(props) {
+      const [keyword, setKeyword] = useState('');
+      const [busy, setBusy] = useState('');
+      const [results, setResults] = useState([]);
+      const add = async (symbol) => {
+        setBusy('补充中…');
+        try {
+          const res = await api('/watch/add', {
+            method: 'POST',
+            body: JSON.stringify({ symbol, withNews: true })
+          });
+          setKeyword('');
+          setResults([]);
+          props.flash(`已添加 ${res.name || res.symbol}：日线 ${res.bars || 0} 条，新闻 ${res.news?.kept || 0} 条`);
+          await props.onAdded();
+        } catch (err) {
+          props.flash(`添加失败：${err.message}`);
+        } finally {
+          setBusy('');
+        }
+      };
+      const submit = async () => {
+        const text = keyword.trim();
+        if (!text) return props.flash('先填股票代码或名称，如 600360 / 华微电子');
+        if (/^\d{6}(\.(SH|SZ))?$/i.test(text)) return add(text.toUpperCase());
+        setBusy('搜索中…');
+        try {
+          const res = await api(`/search?q=${encodeURIComponent(text)}`);
+          const items = res.items || [];
+          setResults(items);
+          if (!items.length) props.flash('没有搜到，试试 6 位代码或更短的关键词');
+        } catch (err) {
+          props.flash(`搜索失败：${err.message}`);
+        } finally {
+          setBusy('');
+        }
+      };
+      return h('div', { style: { marginBottom: 10 } },
+        h('div', { className: 'icc-form' },
+          h('input', {
+            className: 'icc-input',
+            placeholder: '代码或名称，如 600360 / 华微电子',
+            value: keyword,
+            onChange: (e) => setKeyword(e.target.value),
+            onKeyDown: (e) => { if (e.key === 'Enter') submit(); },
+            style: { width: 240 }
+          }),
+          h('button', { className: 'icc-btn icc-btn-primary', disabled: !!busy, onClick: submit },
+            busy || '搜索 / 添加'),
+          h('button', {
+            className: 'icc-btn',
+            onClick: () => window.open('http://127.0.0.1:8770/watchlist', '_blank', 'noopener')
+          }, '打开完整工作台'),
+          h('span', { className: 'icc-hint' }, '会同步 3 年日线、快照和 8 条新闻')
+        ),
+        results.length ? h('div', { className: 'icc-form', style: { marginTop: 8 } },
+          results.map((r) => h('button', {
+            key: r.symbol,
+            className: 'icc-btn icc-btn-sm',
+            disabled: !!busy,
+            onClick: () => add(r.symbol)
+          }, `${r.name} ${r.symbol}`))
+        ) : null
       );
     }
 
@@ -405,6 +471,7 @@ table.icc-table tr:last-child td { border-bottom: 0; }
           ),
           h('div', { className: 'icc-card' },
             h('div', { className: 'icc-section-title' }, '自选行情', h('span', { className: 'icc-hint' }, `共 ${watchlist.length} 只`)),
+            h(WatchAdd, { flash: props.flash, onAdded: () => props.load(props.acc.id, true) }),
             h(WatchTable, { rows: watchlist })
           )
         ),

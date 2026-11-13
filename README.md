@@ -89,6 +89,7 @@ git clone --depth 1 <repoUrl> <workspace>/icc-app
 `stock_debate` 需要至少 30 条日线。数据不足时它会返回 `NEED_DATA`，并提示可以调用 `icc_sync`：
 
 - `icc_sync` 先把标的加入自选，再拉 3 年日线、实时快照，默认同时抓 8 条新闻并用本地 SVM 打分；
+- 仪表盘「概览 → 自选行情」也有搜索框：输入代码或名称（如 `600360`、`华微电子`），点“搜索 / 添加”即可；右侧按钮可打开完整工作台；
 - 只在用户明确同意联网同步后调用，补完再重试 `stock_debate`；
 - 工作空间里的 ICC 代码需要包含 `icc-app/sync_symbol.py`，否则会提示先更新代码。
 
@@ -101,6 +102,8 @@ git clone --depth 1 <repoUrl> <workspace>/icc-app
 ```
 GET  /icc-tools/api/state
 POST /icc-tools/api/install
+GET  /icc-tools/api/search?q=华微
+POST /icc-tools/api/watch/add
 GET  /icc-tools/api/debate/latest?symbol=
 POST /icc-tools/api/accounts/create
 POST /icc-tools/api/accounts/reset
